@@ -8,6 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from .core.presentation_builder import PresentationBuilder
+from .core.autonomous_builder import AutonomousPresentationBuilder
 from .cli.interactive import InteractiveCLI
 
 load_dotenv()
@@ -31,6 +32,9 @@ Examples:
 
   # With reference documents
   python -m pptx_agent --topic "Q4 Results" --summary "Financial overview" --reference report.txt --output q4.pptx
+
+  # Autonomous mode - AI makes all design decisions
+  python -m pptx_agent --autonomous --topic "Future of AI" --summary "Exploring AI trends" --output ai_future.pptx
         """
     )
 
@@ -89,6 +93,19 @@ Examples:
         help='Force interactive mode'
     )
 
+    parser.add_argument(
+        '--autonomous',
+        action='store_true',
+        help='Use fully autonomous mode (AI makes all design decisions)'
+    )
+
+    parser.add_argument(
+        '--audience',
+        type=str,
+        default='professional',
+        help='Target audience for autonomous mode (professional, technical, general, executive)'
+    )
+
     args = parser.parse_args()
 
     # Prepare template path
@@ -111,8 +128,76 @@ Examples:
         print("  - Use --api-key argument")
         sys.exit(1)
 
-    # Quick mode vs Interactive mode
-    if args.topic and args.summary and not args.interactive:
+    # Autonomous mode vs Quick mode vs Interactive mode
+    if args.autonomous and args.topic and args.summary:
+        # Autonomous mode - AI makes ALL decisions
+        print("Creating presentation in AUTONOMOUS mode...")
+        print("AI will make all design, layout, and styling decisions.\n")
+
+        # Initialize autonomous builder
+        try:
+            autonomous_builder = AutonomousPresentationBuilder(
+                template_path=template_path,
+                openai_api_key=args.api_key,
+                target_audience=args.audience
+            )
+        except ValueError as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+
+        # Load reference docs if provided
+        ref_docs = None
+        if args.reference:
+            ref_path = Path(args.reference)
+            if ref_path.exists():
+                try:
+                    ref_docs = ref_path.read_text()
+                except Exception as e:
+                    print(f"Warning: Could not read reference file: {e}")
+
+        # Create presentation autonomously
+        try:
+            image_dir = Path(args.images) if args.images else None
+            report = autonomous_builder.create_presentation_autonomously(
+                args.topic,
+                args.summary,
+                args.num_slides,
+                ref_docs,
+                image_dir
+            )
+
+            # Display report
+            print("\n" + "="*60)
+            print("AUTONOMOUS CREATION REPORT")
+            print("="*60)
+            print(f"Slides created: {report['slides_created']}")
+            print(f"Design decisions made: {len(report['decisions_made'])}")
+            print(f"Optimizations performed: {len(report['optimizations_performed'])}")
+
+            if report['optimizations_performed']:
+                print("\nKey optimizations:")
+                for opt in report['optimizations_performed'][:3]:
+                    print(f"  • {opt}")
+
+        except Exception as e:
+            print(f"Error creating autonomous presentation: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
+
+        # Save
+        print(f"\nSaving to {args.output}...")
+        try:
+            output_path = Path(args.output)
+            autonomous_builder.save(output_path)
+            print(f"\n✓ Presentation saved successfully to: {output_path}")
+            print(f"✓ Total slides: {autonomous_builder.get_slide_count()}")
+            print("="*60)
+        except Exception as e:
+            print(f"Error saving presentation: {e}")
+            sys.exit(1)
+
+    elif args.topic and args.summary and not args.interactive:
         # Quick mode - create presentation directly
         print("Creating presentation in quick mode...")
 

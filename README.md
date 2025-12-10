@@ -4,6 +4,15 @@ An AI-powered PowerPoint presentation builder that uses Large Language Models (L
 
 ## Features
 
+### 🚀 Autonomous Mode (NEW!)
+- **Fully AI-Driven Design**: LLM makes ALL styling, layout, and formatting decisions
+- **Intelligent Content Validation**: Automatically checks if content fits and optimizes when needed
+- **Smart Layout Selection**: AI chooses optimal layouts for each slide type
+- **Automatic Color Schemes**: AI-selected color palettes based on topic and audience
+- **Content Optimization**: Auto-splits, reformats, or condenses content to fit perfectly
+- **Zero Manual Styling**: Just provide topic and content - AI handles everything else
+
+### Core Capabilities
 - **AI-Powered Content Generation**: Uses OpenAI's GPT models to generate presentation outlines and content
 - **Template Support**: Work with custom PowerPoint templates or create from scratch
 - **Rich Content Types**:
@@ -42,6 +51,44 @@ cp .env.example .env
 ```
 
 ## Usage
+
+### Autonomous Mode (Recommended for Quick Results)
+
+Let the AI make all design decisions - fastest way to create presentations:
+
+```bash
+# Basic autonomous mode
+python -m pptx_agent --autonomous \
+  --topic "Future of Quantum Computing" \
+  --summary "Exploring quantum computing developments, applications, and industry impact" \
+  --output quantum.pptx
+
+# With audience targeting
+python -m pptx_agent --autonomous \
+  --topic "Q4 Financial Results" \
+  --summary "Revenue, growth metrics, and strategic initiatives" \
+  --audience executive \
+  --num-slides 10 \
+  --output q4_results.pptx
+
+# With reference documents for factual accuracy
+python -m pptx_agent --autonomous \
+  --topic "Product Launch Plan" \
+  --summary "Go-to-market strategy and timeline" \
+  --reference product_spec.txt \
+  --output launch_plan.pptx
+```
+
+**What Autonomous Mode Does:**
+- ✅ Selects optimal layouts for each slide
+- ✅ Chooses professional color schemes
+- ✅ Determines font sizes and styling
+- ✅ Validates content fits on slides
+- ✅ Auto-reformats or splits content when needed
+- ✅ Organizes visual hierarchy
+- ✅ Makes all design decisions autonomously
+
+See [AUTONOMOUS_MODE.md](AUTONOMOUS_MODE.md) for detailed documentation.
 
 ### Interactive Mode
 
@@ -132,10 +179,14 @@ pptx-agent/
 │   ├── core/              # Core PowerPoint manipulation
 │   │   ├── pptx_handler.py
 │   │   ├── template_manager.py
-│   │   └── presentation_builder.py
+│   │   ├── presentation_builder.py
+│   │   ├── autonomous_builder.py      # NEW: Fully autonomous builder
+│   │   ├── content_validator.py       # NEW: Content fitting validation
+│   │   └── layout_optimizer.py        # NEW: Intelligent layout selection
 │   ├── llm/               # LLM integration
 │   │   ├── openai_client.py
-│   │   └── content_planner.py
+│   │   ├── content_planner.py
+│   │   └── autonomous_designer.py     # NEW: AI design decisions
 │   ├── builders/          # Slide builders
 │   │   ├── text_builder.py
 │   │   ├── table_builder.py
@@ -147,10 +198,41 @@ pptx-agent/
 ├── examples/              # Example scripts and templates
 ├── tests/                 # Unit tests
 ├── requirements.txt       # Dependencies
-└── README.md
+├── README.md
+└── AUTONOMOUS_MODE.md     # NEW: Autonomous mode documentation
 ```
 
 ## Advanced Features
+
+### Autonomous AI Designer
+
+The autonomous designer makes intelligent decisions about every aspect of your presentation:
+
+```python
+from pptx_agent.core.autonomous_builder import AutonomousPresentationBuilder
+
+builder = AutonomousPresentationBuilder(target_audience="professional")
+
+# AI makes ALL decisions - just provide content
+report = builder.create_presentation_autonomously(
+    topic="Machine Learning in Healthcare",
+    summary="Applications, benefits, and challenges of ML in medical field",
+    num_slides=10
+)
+
+# Review AI decisions
+print(f"Color scheme chosen: {report['decisions_made'][0]['choice']}")
+print(f"Optimizations performed: {len(report['optimizations_performed'])}")
+
+builder.save(Path("ml_healthcare.pptx"))
+```
+
+**AI Decision Examples:**
+- Detects data-heavy content → Chooses chart-optimized layout
+- Sees comparison content → Selects two-column layout
+- Finds too many bullets → Automatically splits across slides
+- Content too long → Reduces font size or summarizes
+- Images present → Picks picture-friendly layout
 
 ### Working with Templates
 
@@ -245,7 +327,7 @@ usage: python -m pptx_agent [options]
 options:
   -h, --help            Show help message
   -t, --template PATH   Path to PowerPoint template file
-  --topic TOPIC         Presentation topic (for quick mode)
+  --topic TOPIC         Presentation topic
   -s, --summary TEXT    Content summary or key points
   -n, --num-slides N    Target number of slides
   -r, --reference PATH  Path to reference document
@@ -253,15 +335,20 @@ options:
   -o, --output PATH     Output file path (default: output.pptx)
   --api-key KEY         OpenAI API key
   --interactive         Force interactive mode
+  --autonomous          Use fully autonomous mode (AI makes all design decisions)
+  --audience TYPE       Target audience (professional/technical/general/executive)
 ```
 
 ## Examples
 
 See the `examples/` directory for:
-- Sample presentation scripts
-- Template examples
-- Common use cases
-- Integration examples
+- `autonomous_presentation.py` - Full autonomous mode example
+- `autonomous_with_validation.py` - Auto-optimization demo
+- `simple_presentation.py` - Basic presentation creation
+- `chart_presentation.py` - Charts and data visualization
+- `with_reference_docs.py` - Using reference documents
+- `custom_styling.py` - Custom formatting
+- More examples for common use cases
 
 ## Requirements
 
@@ -338,11 +425,15 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 
 ## Roadmap
 
+- [x] ✅ Fully autonomous presentation generation
+- [x] ✅ Intelligent content validation and optimization
+- [x] ✅ AI-powered layout selection
+- [x] ✅ Automatic color scheme generation
 - [ ] Support for video embedding
 - [ ] Advanced animation options
 - [ ] Batch processing of multiple presentations
 - [ ] Export to PDF
-- [ ] Presentation theme customization
+- [ ] Brand guideline integration for autonomous mode
 - [ ] Speaker notes generation
 - [ ] Collaborative editing features
 - [ ] Web interface
