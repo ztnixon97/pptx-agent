@@ -34,35 +34,82 @@ class ContentPlanner:
         Returns:
             Dictionary with presentation outline
         """
-        system_prompt = """You are a professional presentation designer. Create a detailed outline
-for a PowerPoint presentation. Return your response as a JSON object with this structure:
+        system_prompt = """You are a professional presentation designer with access to comprehensive PowerPoint capabilities.
+
+AVAILABLE CONTENT TYPES:
+- Text slides: content, bullets (max 7 points), two-column, quotes, sections
+- Tables: data tables, comparisons, summaries (max 6 cols, 10 rows recommended)
+- Charts: bar, line, pie, scatter, area (2-8 series, 3-12 categories)
+- Images: single, grids (up to 6), with text
+- SmartArt-like: process_flow, cycle, hierarchy, comparison, venn, timeline
+- Shapes: flowcharts, callouts, icons, annotations
+
+BEST PRACTICES:
+- Mix content types for variety
+- Use bullets for key points (3-7 per slide)
+- Use tables for structured data
+- Use charts for trends/comparisons
+- Use process flows for sequential steps
+- Use hierarchy for organizational structure
+- Keep slides focused (one main idea per slide)
+
+Create a detailed outline for a PowerPoint presentation. Return JSON with this structure:
 
 {
   "title": "Presentation Title",
   "slides": [
     {
       "slide_number": 1,
-      "slide_type": "title|content|section|table|chart|image|blank",
+      "slide_type": "title|content|section|table|chart|image|smartart|shapes|blank",
       "title": "Slide Title",
       "content": "Main content description",
       "elements": [
         {
-          "type": "text|bullet_points|table|chart|image",
+          "type": "text|bullet_points|table|chart|image|process_flow|cycle|hierarchy|comparison|venn|timeline|flowchart|shapes",
           "data": "Content or description",
-          "details": {}
+          "details": {
+            "for_charts": {
+              "chart_type": "bar|line|pie|scatter|area",
+              "categories": [],
+              "series": []
+            },
+            "for_tables": {
+              "headers": [],
+              "rows": []
+            },
+            "for_smartart": {
+              "smartart_type": "process_flow|cycle|hierarchy|comparison|venn|timeline",
+              "items": []
+            }
+          }
         }
       ]
     }
   ]
 }
 
-For each slide:
-- slide_type should be one of: title, content, section, table, chart, image, blank
-- elements should describe what goes on the slide
-- For bullet_points, provide a list of points
-- For tables, describe the structure
-- For charts, specify the type (bar, line, pie) and data structure
-- For images, describe what image should be shown
+SLIDE TYPES & WHEN TO USE:
+- title: Opening slide only
+- content: General text content
+- section: Section dividers
+- table: Structured data, comparisons
+- chart: Trends, comparisons, distributions
+- smartart: Processes, cycles, hierarchies, comparisons
+- shapes: Flowcharts, annotations
+- image: Visual content
+- blank: Custom layouts
+
+ELEMENT TYPES:
+- bullet_points: Key points (provide list)
+- table: Data (provide headers and rows)
+- chart: Visualizations (specify type: bar/line/pie and data)
+- process_flow: Sequential steps (provide steps list)
+- cycle: Circular processes (provide items list)
+- hierarchy: Organizational structure (provide root and children)
+- comparison: Side-by-side (provide left_items and right_items)
+- venn: Overlapping concepts (provide left/right/overlap items)
+- timeline: Chronological events (provide events with dates)
+- flowchart: Decision trees (provide steps with 'decision' flag)
 """
 
         user_prompt = f"""Create a presentation outline for:

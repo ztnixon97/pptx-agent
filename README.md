@@ -25,10 +25,12 @@ An AI-powered PowerPoint presentation builder that uses Large Language Models (L
 - **Template Support**: Work with custom PowerPoint templates or create from scratch
 - **Rich Content Types**:
   - Text slides with various formatting options
-  - Bullet point slides
-  - Tables with custom styling
-  - Charts (bar, line, pie) using matplotlib
-  - Image slides with user-provided images
+  - Bullet point slides with two-column layouts
+  - Tables with custom styling (data tables, comparisons)
+  - Charts (bar, line, pie, scatter, area) using matplotlib
+  - Image slides with user-provided images (single or grid layouts)
+  - **SmartArt-like Diagrams**: Process flows, cycles, hierarchies, comparisons, Venn diagrams, timelines
+  - **Custom Shapes & Flowcharts**: Decision diagrams, icon grids, callouts, annotations
   - Section dividers and title slides
 - **Interactive Mode**: Refine and customize presentations interactively
 - **Quick Mode**: Generate presentations from command-line arguments
@@ -234,26 +236,33 @@ pptx-agent/
 │   │   ├── pptx_handler.py
 │   │   ├── template_manager.py
 │   │   ├── presentation_builder.py
-│   │   ├── autonomous_builder.py      # NEW: Fully autonomous builder
-│   │   ├── content_validator.py       # NEW: Content fitting validation
-│   │   └── layout_optimizer.py        # NEW: Intelligent layout selection
+│   │   ├── iterative_workflow.py      # Collaborative workflow manager
+│   │   ├── autonomous_builder.py      # Fully autonomous builder
+│   │   ├── content_validator.py       # Content fitting validation
+│   │   └── layout_optimizer.py        # Intelligent layout selection
 │   ├── llm/               # LLM integration
 │   │   ├── openai_client.py
 │   │   ├── content_planner.py
-│   │   └── autonomous_designer.py     # NEW: AI design decisions
+│   │   ├── vision_validator.py        # Vision-based slide validation
+│   │   └── autonomous_designer.py     # AI design decisions
 │   ├── builders/          # Slide builders
 │   │   ├── text_builder.py
 │   │   ├── table_builder.py
 │   │   ├── chart_builder.py
-│   │   └── image_builder.py
+│   │   ├── image_builder.py
+│   │   ├── smartart_builder.py        # NEW: SmartArt diagrams
+│   │   └── shapes_builder.py          # NEW: Custom shapes & flowcharts
 │   ├── cli/               # Command-line interface
-│   │   └── interactive.py
+│   │   ├── interactive.py
+│   │   └── collaborative.py           # Collaborative mode CLI
 │   └── main.py            # Main entry point
 ├── examples/              # Example scripts and templates
 ├── tests/                 # Unit tests
 ├── requirements.txt       # Dependencies
 ├── README.md
-└── AUTONOMOUS_MODE.md     # NEW: Autonomous mode documentation
+├── CAPABILITIES.md        # NEW: AI agent capabilities reference
+├── COLLABORATIVE_MODE.md  # Collaborative mode documentation
+└── AUTONOMOUS_MODE.md     # Autonomous mode documentation
 ```
 
 ## Advanced Features
@@ -367,6 +376,111 @@ ImageSlideBuilder.add_multiple_images_slide(
 )
 ```
 
+### SmartArt-like Diagrams
+
+Create professional diagrams to visualize processes, relationships, and hierarchies:
+
+```python
+from pptx_agent.builders.smartart_builder import SmartArtBuilder
+
+smartart = SmartArtBuilder()
+
+# Process flow (sequential steps)
+smartart.add_process_flow(
+    builder.handler,
+    "Development Process",
+    ["Plan", "Design", "Build", "Test", "Deploy"]
+)
+
+# Cycle diagram (continuous process)
+smartart.add_cycle_diagram(
+    builder.handler,
+    "Agile Sprint Cycle",
+    ["Sprint Planning", "Development", "Testing", "Review", "Retrospective"]
+)
+
+# Hierarchy (organizational structure)
+smartart.add_hierarchy_diagram(
+    builder.handler,
+    "Organization Chart",
+    "CEO",
+    ["Engineering", "Product", "Marketing", "Sales"]
+)
+
+# Comparison (side-by-side)
+smartart.add_comparison_diagram(
+    builder.handler,
+    "Build vs Buy",
+    left_items=["Full control", "Custom features", "No licensing"],
+    right_items=["Faster deployment", "Proven solution", "Support included"],
+    left_label="Build",
+    right_label="Buy"
+)
+
+# Venn diagram (overlap analysis)
+smartart.add_venn_diagram(
+    builder.handler,
+    "Skill Set Analysis",
+    left_label="Technical Skills",
+    right_label="Business Skills",
+    left_items=["Coding", "Architecture", "DevOps"],
+    right_items=["Strategy", "Finance", "Marketing"],
+    overlap_items=["Product", "Analytics", "Leadership"]
+)
+
+# Timeline (chronological events)
+smartart.add_timeline(
+    builder.handler,
+    "Product Roadmap 2024",
+    [
+        {"date": "Q1", "event": "Beta Launch"},
+        {"date": "Q2", "event": "Public Release"},
+        {"date": "Q3", "event": "Mobile App"},
+        {"date": "Q4", "event": "Enterprise Features"}
+    ]
+)
+```
+
+### Custom Shapes & Flowcharts
+
+Create custom shapes and flowchart diagrams:
+
+```python
+from pptx_agent.builders.shapes_builder import ShapesBuilder
+
+shapes = ShapesBuilder()
+
+# Flowchart with decision points
+shapes.add_flowchart_slide(
+    builder.handler,
+    "Decision Process",
+    [
+        {"text": "Start", "decision": False},
+        {"text": "Budget Available?", "decision": True},
+        {"text": "Evaluate Options", "decision": False},
+        {"text": "Best Option?", "decision": True},
+        {"text": "Proceed", "decision": False}
+    ]
+)
+
+# Icon grid with labels
+shapes.add_icon_grid_slide(
+    builder.handler,
+    "Core Values",
+    [
+        {"shape": "star", "label": "Quality", "color": (255, 215, 0)},
+        {"shape": "diamond", "label": "Value", "color": (68, 114, 196)},
+        {"shape": "hexagon", "label": "Speed", "color": (112, 173, 71)},
+        {"shape": "circle", "label": "Support", "color": (237, 125, 49)}
+    ],
+    cols=2
+)
+
+# Available shapes: rectangle, rounded_rectangle, oval, circle, triangle,
+# diamond, pentagon, hexagon, octagon, star, arrow_right, arrow_left,
+# arrow_up, arrow_down, callout_rectangle, callout_rounded, cloud
+```
+
 ## Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key (required)
@@ -410,6 +524,7 @@ options:
 
 See the `examples/` directory for:
 - `collaborative_workflow.py` - **Interactive collaborative mode** (RECOMMENDED)
+- `full_features_showcase.py` - **Comprehensive feature demonstration** (SmartArt, shapes, charts, tables)
 - `autonomous_presentation.py` - Full autonomous mode example
 - `autonomous_with_validation.py` - Auto-optimization demo
 - `simple_presentation.py` - Basic presentation creation
@@ -500,6 +615,9 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 - [x] ✅ Collaborative mode with iterative refinement
 - [x] ✅ Vision-based slide validation (GPT-4 Vision)
 - [x] ✅ Interactive feedback loops
+- [x] ✅ SmartArt-like diagrams (process, cycle, hierarchy, comparison, venn, timeline)
+- [x] ✅ Custom shapes and flowcharts
+- [x] ✅ Comprehensive AI capabilities reference
 - [ ] Real-time slide preview in terminal
 - [ ] Slide-to-image conversion (platform-independent)
 - [ ] Support for video embedding

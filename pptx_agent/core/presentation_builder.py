@@ -12,6 +12,8 @@ from ..builders.text_builder import TextSlideBuilder
 from ..builders.table_builder import TableSlideBuilder
 from ..builders.chart_builder import ChartSlideBuilder
 from ..builders.image_builder import ImageSlideBuilder
+from ..builders.smartart_builder import SmartArtBuilder
+from ..builders.shapes_builder import ShapesBuilder
 
 
 class PresentationBuilder:
@@ -35,6 +37,8 @@ class PresentationBuilder:
         self.table_builder = TableSlideBuilder()
         self.chart_builder = ChartSlideBuilder()
         self.image_builder = ImageSlideBuilder()
+        self.smartart_builder = SmartArtBuilder()
+        self.shapes_builder = ShapesBuilder()
 
         self.current_outline: Optional[Dict[str, Any]] = None
 
@@ -184,6 +188,60 @@ class PresentationBuilder:
                     f"Image not found: {image_name}",
                     layout_idx
                 )
+
+        elif primary_type == 'process_flow':
+            details = elements[0].get('details', {})
+            steps = details.get('items', [])
+            if isinstance(steps, str):
+                steps = [s.strip() for s in steps.split(',') if s.strip()]
+            self.smartart_builder.add_process_flow(self.handler, title, steps, layout_idx)
+
+        elif primary_type == 'cycle':
+            details = elements[0].get('details', {})
+            items = details.get('items', [])
+            if isinstance(items, str):
+                items = [i.strip() for i in items.split(',') if i.strip()]
+            self.smartart_builder.add_cycle_diagram(self.handler, title, items, layout_idx)
+
+        elif primary_type == 'hierarchy':
+            details = elements[0].get('details', {})
+            root = details.get('root', 'Root')
+            children = details.get('children', [])
+            if isinstance(children, str):
+                children = [c.strip() for c in children.split(',') if c.strip()]
+            self.smartart_builder.add_hierarchy_diagram(self.handler, title, root, children, layout_idx)
+
+        elif primary_type == 'comparison':
+            details = elements[0].get('details', {})
+            left_items = details.get('left_items', [])
+            right_items = details.get('right_items', [])
+            left_label = details.get('left_label', 'Option A')
+            right_label = details.get('right_label', 'Option B')
+            self.smartart_builder.add_comparison_diagram(
+                self.handler, title, left_items, right_items, left_label, right_label, layout_idx
+            )
+
+        elif primary_type == 'venn':
+            details = elements[0].get('details', {})
+            left_label = details.get('left_label', 'A')
+            right_label = details.get('right_label', 'B')
+            left_items = details.get('left_items', [])
+            right_items = details.get('right_items', [])
+            overlap_items = details.get('overlap_items', [])
+            self.smartart_builder.add_venn_diagram(
+                self.handler, title, left_label, right_label,
+                left_items, right_items, overlap_items, layout_idx
+            )
+
+        elif primary_type == 'timeline':
+            details = elements[0].get('details', {})
+            events = details.get('events', [])
+            self.smartart_builder.add_timeline(self.handler, title, events, layout_idx)
+
+        elif primary_type == 'flowchart':
+            details = elements[0].get('details', {})
+            steps = details.get('steps', [])
+            self.shapes_builder.add_flowchart_slide(self.handler, title, steps, layout_idx)
 
         else:
             # Default to text content
