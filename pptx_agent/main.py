@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from .core.presentation_builder import PresentationBuilder
 from .core.autonomous_builder import AutonomousPresentationBuilder
 from .cli.interactive import InteractiveCLI
+from .cli.collaborative import run_collaborative_mode
 
 load_dotenv()
 
@@ -35,6 +36,9 @@ Examples:
 
   # Autonomous mode - AI makes all design decisions
   python -m pptx_agent --autonomous --topic "Future of AI" --summary "Exploring AI trends" --output ai_future.pptx
+
+  # Collaborative mode - Iterative refinement with user feedback
+  python -m pptx_agent --collaborative --output my_presentation.pptx
         """
     )
 
@@ -106,6 +110,12 @@ Examples:
         help='Target audience for autonomous mode (professional, technical, general, executive)'
     )
 
+    parser.add_argument(
+        '--collaborative',
+        action='store_true',
+        help='Use collaborative mode (iterative workflow with user feedback)'
+    )
+
     args = parser.parse_args()
 
     # Prepare template path
@@ -128,8 +138,25 @@ Examples:
         print("  - Use --api-key argument")
         sys.exit(1)
 
-    # Autonomous mode vs Quick mode vs Interactive mode
-    if args.autonomous and args.topic and args.summary:
+    # Collaborative mode vs Autonomous mode vs Quick mode vs Interactive mode
+    if args.collaborative:
+        # Collaborative mode - iterative workflow with user feedback
+        print("Starting COLLABORATIVE mode...")
+        print("You'll work with the AI to iteratively refine your presentation.\n")
+
+        try:
+            run_collaborative_mode(
+                template_path=template_path,
+                api_key=args.api_key,
+                output_path=Path(args.output) if args.output else None
+            )
+        except Exception as e:
+            print(f"Error in collaborative mode: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
+
+    elif args.autonomous and args.topic and args.summary:
         # Autonomous mode - AI makes ALL decisions
         print("Creating presentation in AUTONOMOUS mode...")
         print("AI will make all design, layout, and styling decisions.\n")

@@ -4,7 +4,15 @@ An AI-powered PowerPoint presentation builder that uses Large Language Models (L
 
 ## Features
 
-### 🚀 Autonomous Mode (NEW!)
+### 🤝 Collaborative Mode (RECOMMENDED!)
+- **Iterative Workflow**: Work WITH the AI to refine your presentation step-by-step
+- **Outline Refinement**: Review and refine the structure before building
+- **Vision-Based Validation**: AI visually analyzes slides to check formatting and fit
+- **Interactive Feedback**: Provide feedback at every stage of creation
+- **User-Controlled**: You maintain creative control throughout the process
+- **Perfect for Important Presentations**: Ideal when you need precise control
+
+### 🚀 Autonomous Mode
 - **Fully AI-Driven Design**: LLM makes ALL styling, layout, and formatting decisions
 - **Intelligent Content Validation**: Automatically checks if content fits and optimizes when needed
 - **Smart Layout Selection**: AI chooses optimal layouts for each slide type
@@ -52,7 +60,53 @@ cp .env.example .env
 
 ## Usage
 
-### Autonomous Mode (Recommended for Quick Results)
+### Collaborative Mode (Recommended for Important Presentations)
+
+Work WITH the AI through an interactive, iterative process:
+
+```bash
+# Start collaborative mode
+python -m pptx_agent --collaborative --output my_presentation.pptx
+
+# With custom template
+python -m pptx_agent --collaborative \
+  --template company_template.pptx \
+  --output q4_results.pptx
+```
+
+**Collaborative Workflow:**
+
+1. **Gather Requirements**: Provide topic, summary, and optional reference documents
+2. **Outline Refinement**: AI creates outline → You review → Provide feedback → AI refines → Repeat until approved
+3. **Build First Draft**: AI creates presentation from approved outline
+4. **Visual Validation** (Optional): AI visually analyzes slides using GPT-4 Vision
+5. **Iterative Refinement**: Review and refine individual slides until satisfied
+
+**Example Interaction:**
+```
+What is your presentation about?
+→ Quarterly Business Review
+
+[AI creates initial outline with 12 slides]
+
+Your feedback: Add a slide about team growth and split
+              the financial section into revenue and expenses
+
+[AI refines outline based on your feedback]
+
+Your feedback: approve
+
+[AI builds presentation]
+
+Review slide 3?
+→ Make the chart larger and use brand colors
+
+[AI helps refine slide]
+```
+
+See [COLLABORATIVE_MODE.md](COLLABORATIVE_MODE.md) for complete documentation.
+
+### Autonomous Mode (Recommended for Quick Drafts)
 
 Let the AI make all design decisions - fastest way to create presentations:
 
@@ -335,13 +389,27 @@ options:
   -o, --output PATH     Output file path (default: output.pptx)
   --api-key KEY         OpenAI API key
   --interactive         Force interactive mode
+  --collaborative       Use collaborative mode (iterative workflow with user feedback)
   --autonomous          Use fully autonomous mode (AI makes all design decisions)
   --audience TYPE       Target audience (professional/technical/general/executive)
 ```
 
+## Mode Comparison
+
+| Feature | Collaborative | Autonomous | Quick | Interactive |
+|---------|--------------|------------|-------|-------------|
+| User Control | High | Low | Medium | High |
+| Speed | Moderate | Fast | Fast | Slow |
+| Feedback Loops | Multiple | None | None | Manual |
+| Vision Validation | Yes | No | No | No |
+| Best For | Important presentations | Quick drafts | Simple needs | Exploration |
+| Outline Refinement | Iterative | Auto | Auto | Manual |
+| Slide-by-slide Review | Yes | No | No | Yes |
+
 ## Examples
 
 See the `examples/` directory for:
+- `collaborative_workflow.py` - **Interactive collaborative mode** (RECOMMENDED)
 - `autonomous_presentation.py` - Full autonomous mode example
 - `autonomous_with_validation.py` - Auto-optimization demo
 - `simple_presentation.py` - Basic presentation creation
@@ -429,13 +497,18 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 - [x] ✅ Intelligent content validation and optimization
 - [x] ✅ AI-powered layout selection
 - [x] ✅ Automatic color scheme generation
+- [x] ✅ Collaborative mode with iterative refinement
+- [x] ✅ Vision-based slide validation (GPT-4 Vision)
+- [x] ✅ Interactive feedback loops
+- [ ] Real-time slide preview in terminal
+- [ ] Slide-to-image conversion (platform-independent)
 - [ ] Support for video embedding
 - [ ] Advanced animation options
 - [ ] Batch processing of multiple presentations
 - [ ] Export to PDF
-- [ ] Brand guideline integration for autonomous mode
+- [ ] Brand guideline integration
 - [ ] Speaker notes generation
-- [ ] Collaborative editing features
+- [ ] Multi-user collaborative sessions
 - [ ] Web interface
 
 ## Acknowledgments
