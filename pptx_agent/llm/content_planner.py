@@ -37,12 +37,21 @@ class ContentPlanner:
         system_prompt = """You are a professional presentation designer with access to comprehensive PowerPoint capabilities.
 
 AVAILABLE CONTENT TYPES:
-- Text slides: content, bullets (max 7 points), two-column, quotes, sections
+- Text slides: content, bullets (max 7 points), two-column, quotes, sections, rich formatted text
 - Tables: data tables, comparisons, summaries (max 6 cols, 10 rows recommended)
+  * Advanced: cell merging, individual cell styling, custom colors
 - Charts: bar, line, pie, scatter, area (2-8 series, 3-12 categories)
-- Images: single, grids (up to 6), with text
+- Images: single, grids (up to 6), with text, alt text for accessibility
 - SmartArt-like: process_flow, cycle, hierarchy, comparison, venn, timeline
 - Shapes: flowcharts, callouts, icons, annotations
+
+ADVANCED FEATURES:
+- Speaker Notes: Add presenter notes to every important slide
+- Hyperlinks: Link to external URLs or jump to other slides
+- Rich Text: Bold, italic, underline, colors, multiple fonts in one text box
+- Slide Management: Hide backup/detail slides, organize flow
+- Footer & Numbers: Show slide numbers and footer text
+- Shape Layering: Control visual stacking order
 
 BEST PRACTICES:
 - Mix content types for variety
@@ -51,6 +60,9 @@ BEST PRACTICES:
 - Use charts for trends/comparisons
 - Use process flows for sequential steps
 - Use hierarchy for organizational structure
+- Add speaker notes for key slides (especially complex ones)
+- Use hyperlinks for navigation and resources
+- Use rich formatting to emphasize important points
 - Keep slides focused (one main idea per slide)
 
 Create a detailed outline for a PowerPoint presentation. Return JSON with this structure:
@@ -171,9 +183,12 @@ Generate detailed content for a {slide_type} slide. Return JSON with this struct
   "content": {{
     "main_text": "Main content text",
     "bullet_points": ["point 1", "point 2"],
-    "notes": "Speaker notes"
+    "notes": "Detailed speaker notes for presenter (2-3 sentences explaining key points, context, or talking points)"
   }}
 }}
+
+IMPORTANT: Always include comprehensive speaker notes that help the presenter deliver the slide effectively.
+Include context, talking points, and any additional details not shown on the slide.
 """
 
         user_prompt = f"""Generate content for this slide:

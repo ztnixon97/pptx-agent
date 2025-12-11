@@ -481,6 +481,154 @@ shapes.add_icon_grid_slide(
 # arrow_up, arrow_down, callout_rectangle, callout_rounded, cloud
 ```
 
+### Speaker Notes
+
+Add presenter notes to slides for better presentation delivery:
+
+```python
+# Add speaker notes to a slide
+handler.add_speaker_notes(
+    slide,
+    "This slide shows Q4 results. Emphasize the 25% growth in APAC region. "
+    "Be prepared to discuss the factors behind this growth if asked."
+)
+
+# Get speaker notes from a slide
+notes = handler.get_speaker_notes(slide)
+```
+
+### Hyperlinks
+
+Create interactive presentations with clickable links:
+
+```python
+# External hyperlink on a shape
+textbox = handler.add_text_box(slide, "Visit our website", 2, 3, 4, 1)
+handler.add_hyperlink_to_shape(textbox, "https://example.com")
+
+# Internal hyperlink to jump to another slide
+nav_button = handler.add_text_box(slide, "Jump to Conclusions →", 2, 5, 4, 0.8)
+handler.add_internal_hyperlink(nav_button, 15)  # Jump to slide 15
+```
+
+### Rich Text Formatting
+
+Apply multiple styles within a single text box:
+
+```python
+# Create text with mixed formatting
+handler.add_formatted_text_box(
+    slide,
+    text_runs=[
+        {"text": "Important: ", "bold": True, "font_size": 24, "color": (255, 0, 0)},
+        {"text": "This feature ", "font_size": 18},
+        {"text": "emphasizes", "italic": True, "underline": True, "font_size": 18},
+        {"text": " key points", "font_size": 18}
+    ],
+    left=2, top=2.5, width=6, height=2
+)
+```
+
+### Advanced Tables
+
+Create sophisticated tables with cell merging and custom styling:
+
+```python
+from pptx_agent.builders.table_builder import TableSlideBuilder
+
+TableSlideBuilder.add_advanced_table_slide(
+    handler,
+    "Q4 Financial Results",
+    headers=["Quarter", "Revenue", "Expenses", "Profit"],
+    rows=[
+        ["Q1", "$500K", "$300K", "$200K"],
+        ["Q2", "$600K", "$350K", "$250K"],
+        ["Q3", "$700K", "$400K", "$300K"],
+        ["Q4", "$800K", "$450K", "$350K"]
+    ],
+    cell_styles={
+        # Highlight the totals row
+        (3, 3): {"fill": (255, 215, 0), "bold": True, "font_size": 14}
+    }
+)
+```
+
+### Slide Management
+
+Control your presentation structure:
+
+```python
+# Duplicate a slide
+handler.duplicate_slide(3)
+
+# Hide a backup slide
+handler.hide_slide(10)  # Hidden but available if needed
+
+# Reorder slides
+handler.reorder_slides([0, 2, 1, 3, 4])  # New order
+
+# Delete a slide
+handler.delete_slide(5)
+```
+
+### Footer and Slide Numbers
+
+Add professional touches:
+
+```python
+# Add footer to all slides
+handler.set_presentation_footer(
+    footer_text="Company Confidential | Q4 2024",
+    show_slide_number=True,
+    show_date=False
+)
+```
+
+### Slide Dimensions
+
+Set presentation size:
+
+```python
+# Widescreen format (16:9) - modern displays
+handler.set_slide_size("widescreen")
+
+# Standard format (4:3) - traditional projectors
+handler.set_slide_size("standard")
+
+# Custom dimensions
+handler.set_custom_slide_size(12, 9)
+```
+
+### Image Enhancements
+
+Add accessible, professional images:
+
+```python
+# Add image with alt text for accessibility
+handler.add_image_with_alt_text(
+    slide,
+    Path("chart.png"),
+    left=2, top=2, width=6, height=4,
+    alt_text="Bar chart showing 25% revenue growth in Q4"
+)
+
+# Set image transparency for watermarks
+pic = slide.shapes.add_picture(str(logo_path), Inches(0.5), Inches(0.5))
+handler.set_image_transparency(pic, 0.3)  # 30% transparent
+```
+
+### Shape Layering
+
+Control visual stacking order:
+
+```python
+# Send background shape to back
+handler.send_to_back(slide, 0)
+
+# Bring important shape to front
+handler.bring_to_front(slide, 2)
+```
+
 ## Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key (required)
@@ -524,7 +672,8 @@ options:
 
 See the `examples/` directory for:
 - `collaborative_workflow.py` - **Interactive collaborative mode** (RECOMMENDED)
-- `full_features_showcase.py` - **Comprehensive feature demonstration** (SmartArt, shapes, charts, tables)
+- `advanced_features_demo.py` - **NEW: Advanced features showcase** (notes, hyperlinks, rich text, advanced tables, etc.)
+- `full_features_showcase.py` - **Comprehensive content types** (SmartArt, shapes, charts, tables)
 - `autonomous_presentation.py` - Full autonomous mode example
 - `autonomous_with_validation.py` - Auto-optimization demo
 - `simple_presentation.py` - Basic presentation creation
@@ -608,6 +757,8 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 
 ## Roadmap
 
+### ✅ Completed Features
+
 - [x] ✅ Fully autonomous presentation generation
 - [x] ✅ Intelligent content validation and optimization
 - [x] ✅ AI-powered layout selection
@@ -618,16 +769,33 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 - [x] ✅ SmartArt-like diagrams (process, cycle, hierarchy, comparison, venn, timeline)
 - [x] ✅ Custom shapes and flowcharts
 - [x] ✅ Comprehensive AI capabilities reference
+- [x] ✅ **Speaker notes** - Add presenter notes to slides
+- [x] ✅ **Hyperlinks** - External and internal slide links
+- [x] ✅ **Rich text formatting** - Bold, italic, colors, multiple fonts
+- [x] ✅ **Advanced tables** - Cell merging and individual cell styling
+- [x] ✅ **Slide management** - Duplicate, hide, reorder, delete slides
+- [x] ✅ **Footer and slide numbers** - Professional slide numbering
+- [x] ✅ **Slide dimensions** - Widescreen, standard, custom sizes
+- [x] ✅ **Image enhancements** - Alt text for accessibility, transparency
+- [x] ✅ **Shape layering** - Control z-order (bring to front/send to back)
+
+### 🚧 Planned Features
+
+- [ ] Advanced animation options (entrance, emphasis, exit)
+- [ ] Slide transitions (fade, push, wipe, etc.)
+- [ ] Advanced chart features (combo charts, secondary axis, data labels)
+- [ ] Comments and review tracking
+- [ ] Full shape grouping support
 - [ ] Real-time slide preview in terminal
 - [ ] Slide-to-image conversion (platform-independent)
 - [ ] Support for video embedding
-- [ ] Advanced animation options
+- [ ] Audio narration
 - [ ] Batch processing of multiple presentations
 - [ ] Export to PDF
 - [ ] Brand guideline integration
-- [ ] Speaker notes generation
 - [ ] Multi-user collaborative sessions
 - [ ] Web interface
+- [ ] Equations and mathematical notation
 
 ## Acknowledgments
 

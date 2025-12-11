@@ -193,3 +193,104 @@ class TableSlideBuilder:
             layout_index=layout_index,
             left=2.0, width=6.0
         )
+
+    @staticmethod
+    def add_advanced_table_slide(handler, title: str, headers: List[str],
+                                rows: List[List[str]],
+                                merge_cells: Optional[List[tuple]] = None,
+                                cell_styles: Optional[Dict[tuple, Dict[str, Any]]] = None,
+                                layout_index: int = 1):
+        """
+        Add a slide with an advanced table supporting cell merging and individual cell styling.
+
+        Args:
+            handler: PPTXHandler instance
+            title: Slide title
+            headers: List of column headers
+            rows: List of rows
+            merge_cells: List of tuples (row1, col1, row2, col2) to merge cells
+            cell_styles: Dict mapping (row, col) to style dict:
+                        {'fill': (r,g,b), 'bold': bool, 'italic': bool,
+                         'font_size': int, 'font_color': (r,g,b), 'align': str}
+            layout_index: Layout to use
+
+        Returns:
+            The created slide
+        """
+        slide = handler.add_slide(layout_index)
+
+        if slide.shapes.title:
+            slide.shapes.title.text = title
+
+        num_cols = len(headers)
+        num_rows = len(rows) + 1  # +1 for header row
+
+        # Add table
+        table_shape = slide.shapes.add_table(
+            num_rows, num_cols,
+            Inches(1.0), Inches(2.0),
+            Inches(8.0), Inches(4.0)
+        )
+
+        table = table_shape.table
+
+        # Set column headers
+        for col_idx, header in enumerate(headers):
+            cell = table.cell(0, col_idx)
+            cell.text = str(header)
+            cell.text_frame.paragraphs[0].font.bold = True
+            cell.text_frame.paragraphs[0].font.size = Pt(12)
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = RGBColor(68, 114, 196)
+            cell.text_frame.paragraphs[0].font.color.rgb = RGBColor(255, 255, 255)
+
+        # Fill in data rows
+        for row_idx, row_data in enumerate(rows, start=1):
+            for col_idx, cell_value in enumerate(row_data):
+                if col_idx < num_cols:
+                    cell = table.cell(row_idx, col_idx)
+                    cell.text = str(cell_value)
+                    cell.text_frame.paragraphs[0].font.size = Pt(11)
+
+        # Apply cell merging
+        if merge_cells:
+            for row1, col1, row2, col2 in merge_cells:
+                try:
+                    table.cell(row1, col1).merge(table.cell(row2, col2))
+                except Exception:
+                    pass  # Skip if merge fails
+
+        # Apply individual cell styles
+        if cell_styles:
+            for (row, col), style in cell_styles.items():
+                try:
+                    cell = table.cell(row, col)
+
+                    # Apply fill color
+                    if 'fill' in style:
+                        cell.fill.solid()
+                        cell.fill.fore_color.rgb = RGBColor(*style['fill'])
+
+                    # Apply text formatting
+                    para = cell.text_frame.paragraphs[0]
+
+                    if 'bold' in style:
+                        para.font.bold = style['bold']
+                    if 'italic' in style:
+                        para.font.italic = style['italic']
+                    if 'font_size' in style:
+                        para.font.size = Pt(style['font_size'])
+                    if 'font_color' in style:
+                        para.font.color.rgb = RGBColor(*style['font_color'])
+                    if 'align' in style:
+                        align_map = {
+                            'left': PP_ALIGN.LEFT,
+                            'center': PP_ALIGN.CENTER,
+                            'right': PP_ALIGN.RIGHT
+                        }
+                        para.alignment = align_map.get(style['align'], PP_ALIGN.LEFT)
+
+                except Exception:
+                    pass  # Skip if styling fails
+
+        return slide
