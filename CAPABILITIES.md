@@ -503,15 +503,35 @@ Templates typically include:
 ### Reference Document Processing
 
 **Capabilities:**
-- Parse text files (.txt, .md)
-- Extract key information
+- Parse multiple document formats:
+  * **Word documents (.docx)**: Paragraphs, tables, headers/footers
+  * **PowerPoint presentations (.pptx)**: Titles, text, tables, speaker notes
+  * **Excel spreadsheets (.xlsx, .xls)**: All sheets, cell values, formatted data
+  * **Text files (.txt, .md)**: Plain text and Markdown
+- Extract key information from all formats
+- Combine content from multiple document types
 - Generate content based on factual data
 - Maintain context from reference materials
 
+**Methods:**
+- `DocumentParser.parse_file(file_path)` - Parse a single document
+- `DocumentParser.parse_multiple_files(file_paths)` - Combine multiple documents
+- `DocumentParser.get_document_summary(file_path)` - Get document metadata
+
 **Best Practices:**
 - Use references for factual presentations
-- Extract specific data points
+- Combine multiple sources (e.g., Word spec + Excel data)
+- Extract specific data points from Excel for charts/tables
+- Reuse content from previous PowerPoint presentations
+- Parse Word documents for detailed requirements/specifications
 - Cite sources when appropriate
+
+**Use Cases:**
+- Convert project specifications (Word) into presentations
+- Create financial reviews from Excel data
+- Reuse slides/content from previous PowerPoint decks
+- Combine data from multiple sources (specs + data + notes)
+- Extract structured data from Excel for visualization
 
 ### Template Support
 

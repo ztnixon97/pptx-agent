@@ -34,7 +34,7 @@ An AI-powered PowerPoint presentation builder that uses Large Language Models (L
   - Section dividers and title slides
 - **Interactive Mode**: Refine and customize presentations interactively
 - **Quick Mode**: Generate presentations from command-line arguments
-- **Reference Documents**: Incorporate information from text files
+- **Multi-Format Reference Documents**: Incorporate information from .docx, .pptx, .xlsx, .txt files
 - **Programmatic API**: Use as a Python library for custom workflows
 
 ## Installation
@@ -629,6 +629,56 @@ handler.send_to_back(slide, 0)
 handler.bring_to_front(slide, 2)
 ```
 
+### Multi-Format Reference Documents
+
+Extract content from various document formats to use as reference material:
+
+```python
+from pptx_agent.core.document_parser import DocumentParser
+
+# Parse a Word document
+content = DocumentParser.parse_file(Path("project_spec.docx"))
+
+# Parse an Excel spreadsheet
+data = DocumentParser.parse_file(Path("financials.xlsx"))
+
+# Parse a PowerPoint presentation
+slides = DocumentParser.parse_file(Path("previous_deck.pptx"))
+
+# Parse multiple documents
+files = [
+    Path("requirements.docx"),
+    Path("data.xlsx"),
+    Path("notes.txt")
+]
+combined = DocumentParser.parse_multiple_files(files)
+
+# Use with PresentationBuilder
+builder = PresentationBuilder()
+outline = builder.create_outline(
+    topic="Product Launch",
+    summary="Comprehensive launch strategy",
+    reference_docs=content  # AI extracts relevant information
+)
+```
+
+**Supported Formats:**
+- **.docx** - Microsoft Word (paragraphs, tables, headers/footers)
+- **.pptx** - Microsoft PowerPoint (titles, text, tables, speaker notes)
+- **.xlsx/.xls** - Microsoft Excel (all sheets, cell values)
+- **.txt/.md** - Plain text/Markdown files
+
+**Command-line Usage:**
+```bash
+# Use a Word document as reference
+python -m pptx_agent --topic "Q4 Review" --summary "Financial overview" \
+    --reference report.docx --output presentation.pptx
+
+# Use an Excel file as reference
+python -m pptx_agent --topic "Sales Analysis" --summary "Regional performance" \
+    --reference sales_data.xlsx --output sales.pptx
+```
+
 ## Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key (required)
@@ -672,7 +722,8 @@ options:
 
 See the `examples/` directory for:
 - `collaborative_workflow.py` - **Interactive collaborative mode** (RECOMMENDED)
-- `advanced_features_demo.py` - **NEW: Advanced features showcase** (notes, hyperlinks, rich text, advanced tables, etc.)
+- `advanced_features_demo.py` - **Advanced features showcase** (notes, hyperlinks, rich text, advanced tables)
+- `multi_format_references.py` - **NEW: Multi-format reference documents** (.docx, .pptx, .xlsx, .txt)
 - `full_features_showcase.py` - **Comprehensive content types** (SmartArt, shapes, charts, tables)
 - `autonomous_presentation.py` - Full autonomous mode example
 - `autonomous_with_validation.py` - Auto-optimization demo
@@ -693,6 +744,8 @@ See the `examples/` directory for:
 - colorama
 - python-dotenv
 - pydantic
+- python-docx (for Word document parsing)
+- openpyxl (for Excel parsing)
 
 ## Development
 
@@ -778,6 +831,7 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 - [x] ✅ **Slide dimensions** - Widescreen, standard, custom sizes
 - [x] ✅ **Image enhancements** - Alt text for accessibility, transparency
 - [x] ✅ **Shape layering** - Control z-order (bring to front/send to back)
+- [x] ✅ **Multi-format reference documents** - Parse .docx, .pptx, .xlsx, .txt files
 
 ### 🚧 Planned Features
 
