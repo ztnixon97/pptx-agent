@@ -503,17 +503,37 @@ Templates typically include:
 ### Reference Document Processing
 
 **Capabilities:**
-- Parse text files (.txt, .md)
-- Extract key information
+- Parse multiple document formats:
+  * **Word documents (.docx)**: Paragraphs, tables, headers/footers
+  * **PowerPoint presentations (.pptx)**: Titles, text, tables, speaker notes
+  * **Excel spreadsheets (.xlsx, .xls)**: All sheets, cell values, formatted data
+  * **Text files (.txt, .md)**: Plain text and Markdown
+- Extract key information from all formats
+- Combine content from multiple document types
 - Generate content based on factual data
 - Maintain context from reference materials
 
+**Methods:**
+- `DocumentParser.parse_file(file_path)` - Parse a single document
+- `DocumentParser.parse_multiple_files(file_paths)` - Combine multiple documents
+- `DocumentParser.get_document_summary(file_path)` - Get document metadata
+
 **Best Practices:**
 - Use references for factual presentations
-- Extract specific data points
+- Combine multiple sources (e.g., Word spec + Excel data)
+- Extract specific data points from Excel for charts/tables
+- Reuse content from previous PowerPoint presentations
+- Parse Word documents for detailed requirements/specifications
 - Cite sources when appropriate
 
-### Template Support
+**Use Cases:**
+- Convert project specifications (Word) into presentations
+- Create financial reviews from Excel data
+- Reuse slides/content from previous PowerPoint decks
+- Combine data from multiple sources (specs + data + notes)
+- Extract structured data from Excel for visualization
+
+### Template Support (Basic)
 
 **Capabilities:**
 - Load and analyze PowerPoint templates (.pptx)
@@ -521,6 +541,414 @@ Templates typically include:
 - Use template color schemes
 - Identify placeholder positions
 - Suggest optimal layouts for content types
+
+## Flexible Layout System (NEW)
+
+### Template Intelligence & Branding Preservation
+
+**Revolutionary Capability:** PPTX Agent can parse template slides to understand their structure, preserve branding elements, and allow flexible content positioning - combining the best of templates and dynamic layouts.
+
+#### Core Concept
+
+**Traditional Approach:**
+- Templates define BOTH styling AND structure
+- Locked into predefined layouts
+- Can't customize positioning
+- Either use template OR create from scratch
+
+**PPTX Agent Approach:**
+- Templates define STYLING (colors, fonts, logos) NOT structure
+- Parse templates to identify branding vs content
+- Preserve branding, flexible content positioning
+- Best of both worlds: consistency + flexibility
+
+#### Template Slide Parser
+
+**Capabilities:**
+- Analyze any template slide to identify all elements
+- Classify elements automatically:
+  * **Branding**: Logos, watermarks, company names, persistent headers/footers
+  * **Content**: Placeholders, main content areas
+  * **Decoration**: Decorative shapes, lines, backgrounds
+- Calculate "safe content area" (avoiding branding zones)
+- Extract element properties (position, size, type, text)
+- Provide layout constraints for intelligent positioning
+
+**Module:** `TemplateSlideParser`
+
+**Methods:**
+```python
+# Parse a template layout
+parser = TemplateSlideParser(template_path)
+layout_info = parser.parse_layout(layout_index=1)
+
+# Get safe area for content (avoiding branding)
+safe_area = parser.get_content_safe_area(layout_index=1)
+# Returns: {'left': 0.5, 'top': 1.5, 'width': 12.3, 'height': 5.0}
+
+# Get human-readable summary
+summary = parser.get_layout_summary(layout_index=1)
+# Shows: branding elements, content areas, safe zones
+```
+
+**Classification Logic:**
+- **Branding Elements**:
+  - Images in corners (likely logos)
+  - Small images (<2" x 2")
+  - Text with company keywords (Inc, LLC, ©, etc.)
+  - Text at slide edges (headers/footers)
+  - Groups in corners (logo + text combinations)
+  - Footer/date/number placeholders
+
+- **Content Elements**:
+  - Title and body placeholders
+  - Large images (>2" in any dimension)
+  - Tables and charts
+  - Main text areas
+
+- **Decorative Elements**:
+  - Thin lines (decorative borders)
+  - Very small shapes (<0.5")
+  - Background elements
+
+**Output Example:**
+```
+Layout: Title and Content (Index 1)
+Dimensions: 13.3" x 7.5"
+
+Total Elements: 7
+  Branding: 2
+  Content: 2
+  Placeholders: 2
+  Decoration: 1
+
+Branding Elements (will be preserved):
+  - image: CompanyLogo at (0.5", 0.3")
+    [Identified as branding: top-left corner, small size]
+  - text: Footer at (0.5", 7.0")
+    Text: "© 2024 ACME Corp - Confidential"
+
+Safe Content Area:
+  Position: (0.5", 1.8")
+  Size: 12.3" x 4.9"
+  [Content will be positioned here, automatically avoiding branding]
+```
+
+#### Flexible Slide Builder
+
+**Capabilities:**
+- Start from actual template slides (not blank)
+- Automatically preserve branding elements
+- Position content dynamically within safe areas
+- Support multiple layout types
+- LLM can make layout decisions
+- Content never overlaps branding
+
+**Module:** `FlexibleSlideBuilder`
+
+**Basic Usage:**
+```python
+# Initialize with template
+builder = FlexibleSlideBuilder(template_path=Path("corporate_template.pptx"))
+
+# Create slide from template layout
+slide = builder.create_slide_from_template(layout_index=1)
+
+# Add content - automatically positioned in safe area
+builder.add_content_to_slide(slide, {
+    'title': 'Q4 Results',
+    'content_type': 'bullets',
+    'content': ['Revenue up 25%', 'Expanded to 12 markets', ...]
+})
+
+# Save presentation
+builder.save(Path("output.pptx"))
+```
+
+**Supported Content Types:**
+- `'text'`: Paragraph content
+- `'bullets'`: Bullet point lists
+- `'two_column'`: Side-by-side content with custom ratios
+- `'grid'`: Image/content grids with specified rows/columns
+- `'image'`: Images with positioning and sizing
+- `'custom'`: Exact positioning specified by LLM
+
+**Advanced: Two-Column with Custom Ratio:**
+```python
+builder.add_content_to_slide(slide, {
+    'title': 'Comparison',
+    'content_type': 'two_column',
+    'content': {
+        'ratio': 0.6,  # 60% left, 40% right
+        'left': 'Main content gets more space...',
+        'right': 'Supporting information...'
+    }
+})
+# Result: Columns automatically sized 60/40, positioned in safe area
+```
+
+**Advanced: Image Grid:**
+```python
+builder.add_content_to_slide(slide, {
+    'title': 'Product Gallery',
+    'content_type': 'grid',
+    'content': {
+        'rows': 2,
+        'cols': 3,
+        'items': [
+            {'image': 'product1.png'},
+            {'image': 'product2.png'},
+            # ... up to 6 items for 2x3 grid
+        ]
+    }
+})
+# Result: 2x3 grid automatically positioned in safe area
+```
+
+**Advanced: Custom Positioning:**
+```python
+# LLM can specify exact positions (relative 0-1 within safe area)
+builder.add_content_to_slide(slide, {
+    'title': 'Custom Layout',
+    'content_type': 'custom',
+    'content': [
+        {'type': 'text', 'left': 0, 'top': 0, 'width': 0.6, 'height': 0.8,
+         'content': 'Main content area...', 'font_size': 16},
+        {'type': 'text', 'left': 0.65, 'top': 0, 'width': 0.35, 'height': 0.4,
+         'content': 'Sidebar info...', 'font_size': 14},
+    ]
+})
+# Result: Elements positioned as specified within safe area
+```
+
+**Key Methods:**
+```python
+# Get safe area for a slide
+safe_area = builder.get_content_safe_area(slide)
+# Returns: {'left': 0.5, 'top': 1.8, 'width': 12.3, 'height': 4.9}
+
+# Clear placeholder content (keep branding)
+builder.clear_placeholder_content(slide)
+
+# Get available layouts
+layouts = builder.list_available_layouts()
+
+# Get layout summary
+summary = builder.get_layout_summary(layout_index=1)
+```
+
+#### Dynamic Layout Engine
+
+**Capabilities:**
+- Calculate element positions programmatically (no template required)
+- Create common layouts on demand
+- Suggest optimal layouts based on content
+- Support custom LLM-specified positions
+- Work with any slide dimensions
+
+**Module:** `DynamicLayoutEngine`
+
+**When to Use:**
+- No template available (creates blank slides with calculated positions)
+- Completely custom layouts needed
+- LLM wants full creative control
+- Non-standard positioning requirements
+
+**Common Layouts:**
+```python
+engine = DynamicLayoutEngine(slide_width=13.333, slide_height=7.5)
+
+# Title + content
+elements = engine.create_title_content_layout()
+
+# Two columns with custom ratio
+elements = engine.create_two_column_layout(title=True, column_ratio=0.6)
+
+# Grid layout
+elements = engine.create_grid_layout(rows=2, cols=3, title=True)
+
+# Image + text
+elements = engine.create_image_text_layout(image_position='left')
+
+# Custom from LLM specification
+elements = engine.create_custom_layout([
+    {'type': 'title', 'left': 0.5, 'top': 0.5, 'width': 9.0, 'height': 0.8},
+    {'type': 'chart', 'left': 0.5, 'top': 1.5, 'width': 5.5, 'height': 4.0},
+    # ...
+])
+```
+
+**Content-Aware Suggestions:**
+```python
+# Suggest optimal layout based on content
+suggested = engine.suggest_layout({
+    'has_title': True,
+    'has_image': True,
+    'has_chart': False,
+    'comparison': False
+})
+# Returns: Appropriate ElementBox layout
+
+suggested = engine.suggest_layout({
+    'has_title': True,
+    'num_images': 4
+})
+# Returns: 2x2 grid layout
+
+suggested = engine.suggest_layout({
+    'has_title': True,
+    'comparison': True
+})
+# Returns: Two-column layout
+```
+
+**Element Box Structure:**
+```python
+@dataclass
+class ElementBox:
+    left: float       # Position in inches
+    top: float
+    width: float      # Size in inches
+    height: float
+    element_type: str # 'title', 'content', 'image', etc.
+    content: Any      # Optional content data
+    z_index: int      # Layering order
+```
+
+#### LLM Layout Decision Making
+
+**NEW CAPABILITY:** The LLM can now make intelligent layout decisions when creating presentations.
+
+**How It Works:**
+1. LLM analyzes content requirements
+2. Chooses optimal layout type
+3. Specifies layout parameters (ratios, grid size, etc.)
+4. Content is positioned automatically within safe areas
+5. Branding is always preserved
+
+**Layout Specifications in Outline:**
+```json
+{
+  "slides": [
+    {
+      "title": "Comparison Slide",
+      "layout_config": {
+        "type": "two_column",
+        "column_ratio": 0.6  // 60/40 split
+      },
+      "elements": [...]
+    },
+    {
+      "title": "Product Gallery",
+      "layout_config": {
+        "type": "grid",
+        "grid_rows": 2,
+        "grid_cols": 3
+      },
+      "elements": [...]
+    },
+    {
+      "title": "Hero Image Slide",
+      "layout_config": {
+        "type": "image_text",
+        "image_position": "left",
+        "image_size": "large"
+      },
+      "elements": [...]
+    }
+  ]
+}
+```
+
+**Layout Decision Guidelines for AI:**
+
+| Content Type | Recommended Layout | Parameters |
+|--------------|-------------------|------------|
+| **Before/After comparison** | `two_column` | `column_ratio: 0.5` (equal) |
+| **Pros/Cons comparison** | `two_column` | `column_ratio: 0.5` (equal) |
+| **Main content + sidebar** | `two_column` | `column_ratio: 0.65` (main gets more) |
+| **Multiple images (2-6)** | `grid` | `grid_rows: 2, grid_cols: 2/3` |
+| **Hero image with text** | `image_text` | `image_position: left/right, image_size: large` |
+| **Standard content** | `standard` | Default layout |
+| **Complex requirements** | `custom` | Specify exact positions |
+
+**Example AI Decision Process:**
+```
+User request: "Create slide comparing our approach vs competitors"
+
+AI Analysis:
+- Content type: Comparison
+- Two distinct groups: us vs them
+- Equal emphasis needed
+
+Layout Decision:
+{
+  "layout_config": {
+    "type": "two_column",
+    "column_ratio": 0.5  # Equal split for fair comparison
+  }
+}
+
+Result:
+- FlexibleSlideBuilder creates slide from template
+- Preserves company logo and footer (branding)
+- Creates 50/50 columns within safe content area
+- No overlap with branding elements
+```
+
+#### Benefits of Flexible Layout System
+
+**For Users:**
+✓ Templates provide brand consistency (logos, colors, fonts)
+✓ Content layouts not locked to template structure
+✓ Professional appearance with creative freedom
+✓ No manual positioning needed
+
+**For LLM:**
+✓ Can make intelligent layout decisions
+✓ Not constrained by predefined layouts
+✓ Adapts layout to content requirements
+✓ Full control when needed, automation when helpful
+
+**For Quality:**
+✓ Branding never accidentally removed or covered
+✓ Content always positioned in safe areas
+✓ Optimal layouts for each content type
+✓ Consistent spacing and alignment
+
+#### Best Practices
+
+**When Using Flexible Layout System:**
+
+1. **Always Start from Template** (if available)
+   - Use `FlexibleSlideBuilder` instead of creating blank slides
+   - Template provides branding, colors, fonts
+   - System automatically preserves branding
+
+2. **Make Layout Decisions Based on Content**
+   - Comparison → two-column
+   - Multiple images → grid
+   - Hero image → image_text
+   - Default → standard
+
+3. **Specify Layout Parameters**
+   - Column ratios: Consider content importance (60/40 vs 50/50)
+   - Grid dimensions: Match number of items (4 items = 2x2, 6 items = 2x3)
+   - Image size/position: Match content hierarchy
+
+4. **Trust the Safe Area**
+   - System automatically avoids branding
+   - Content positioned optimally
+   - No need to manually calculate positions
+
+5. **Use Custom Layout for Complex Needs**
+   - When standard layouts don't fit
+   - Specify relative positions (0-1 within safe area)
+   - System converts to absolute positions
+
+**Examples Directory:**
+- `examples/dynamic_layout_demo.py` - Dynamic layout engine demonstration
+- `examples/flexible_template_demo.py` - Flexible slide builder with template preservation
 
 ## Content Generation Guidelines
 
@@ -730,5 +1158,5 @@ When creating presentations:
 ---
 
 **Last Updated:** Based on current implementation
-**Version:** 2.0 - Now includes speaker notes, hyperlinks, rich text formatting, advanced tables, slide management, footer/slide numbers, slide dimensions, image enhancements, and shape layering
+**Version:** 3.0 - Now includes flexible layout system with template intelligence, branding preservation, dynamic positioning, LLM layout decisions, plus speaker notes, hyperlinks, rich text formatting, advanced tables, slide management, footer/slide numbers, slide dimensions, image enhancements, shape layering, and multi-format reference document support
 **For AI Agent Use:** Reference this document when planning and creating presentations

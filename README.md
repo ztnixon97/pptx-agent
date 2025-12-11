@@ -34,7 +34,7 @@ An AI-powered PowerPoint presentation builder that uses Large Language Models (L
   - Section dividers and title slides
 - **Interactive Mode**: Refine and customize presentations interactively
 - **Quick Mode**: Generate presentations from command-line arguments
-- **Reference Documents**: Incorporate information from text files
+- **Multi-Format Reference Documents**: Incorporate information from .docx, .pptx, .xlsx, .txt files
 - **Programmatic API**: Use as a Python library for custom workflows
 
 ## Installation
@@ -239,7 +239,11 @@ pptx-agent/
 │   │   ├── iterative_workflow.py      # Collaborative workflow manager
 │   │   ├── autonomous_builder.py      # Fully autonomous builder
 │   │   ├── content_validator.py       # Content fitting validation
-│   │   └── layout_optimizer.py        # Intelligent layout selection
+│   │   ├── layout_optimizer.py        # Intelligent layout selection
+│   │   ├── template_slide_parser.py   # NEW: Template intelligence
+│   │   ├── flexible_slide_builder.py  # NEW: Flexible layouts with branding preservation
+│   │   ├── dynamic_layout_engine.py   # NEW: Programmatic layout positioning
+│   │   └── document_parser.py         # NEW: Multi-format document parsing
 │   ├── llm/               # LLM integration
 │   │   ├── openai_client.py
 │   │   ├── content_planner.py
@@ -629,6 +633,282 @@ handler.send_to_back(slide, 0)
 handler.bring_to_front(slide, 2)
 ```
 
+### Multi-Format Reference Documents
+
+Extract content from various document formats to use as reference material:
+
+```python
+from pptx_agent.core.document_parser import DocumentParser
+
+# Parse a Word document
+content = DocumentParser.parse_file(Path("project_spec.docx"))
+
+# Parse an Excel spreadsheet
+data = DocumentParser.parse_file(Path("financials.xlsx"))
+
+# Parse a PowerPoint presentation
+slides = DocumentParser.parse_file(Path("previous_deck.pptx"))
+
+# Parse multiple documents
+files = [
+    Path("requirements.docx"),
+    Path("data.xlsx"),
+    Path("notes.txt")
+]
+combined = DocumentParser.parse_multiple_files(files)
+
+# Use with PresentationBuilder
+builder = PresentationBuilder()
+outline = builder.create_outline(
+    topic="Product Launch",
+    summary="Comprehensive launch strategy",
+    reference_docs=content  # AI extracts relevant information
+)
+```
+
+**Supported Formats:**
+- **.docx** - Microsoft Word (paragraphs, tables, headers/footers)
+- **.pptx** - Microsoft PowerPoint (titles, text, tables, speaker notes)
+- **.xlsx/.xls** - Microsoft Excel (all sheets, cell values)
+- **.txt/.md** - Plain text/Markdown files
+
+**Command-line Usage:**
+```bash
+# Use a Word document as reference
+python -m pptx_agent --topic "Q4 Review" --summary "Financial overview" \
+    --reference report.docx --output presentation.pptx
+
+# Use an Excel file as reference
+python -m pptx_agent --topic "Sales Analysis" --summary "Regional performance" \
+    --reference sales_data.xlsx --output sales.pptx
+```
+
+### 🎨 Flexible Layout System (NEW!)
+
+**Revolutionary Feature:** PPTX Agent can intelligently parse templates to preserve branding while allowing completely flexible content positioning. This solves the traditional template rigidity problem!
+
+#### The Problem with Traditional Templates
+
+**Traditional Approach:**
+- Templates lock you into predefined layout structures
+- Can't customize positioning without losing branding
+- Either use template AS-IS or create from scratch
+- No middle ground
+
+**PPTX Agent Solution:**
+- Templates provide STYLING (colors, fonts, logos) NOT structure
+- AI parses templates to identify branding vs content
+- Branding automatically preserved, content flexibly positioned
+- Best of both worlds: consistency + creativity
+
+#### Template Intelligence
+
+PPTX Agent can analyze any template slide and automatically classify elements:
+
+```python
+from pptx_agent.core.template_slide_parser import TemplateSlideParser
+from pptx_agent.core.flexible_slide_builder import FlexibleSlideBuilder
+
+# Parse template to understand its structure
+parser = TemplateSlideParser(Path("corporate_template.pptx"))
+layout_info = parser.parse_layout(layout_index=1)
+
+# See what was found
+print(parser.get_layout_summary(layout_index=1))
+```
+
+**Output Example:**
+```
+Layout: Title and Content (Index 1)
+Dimensions: 13.3" x 7.5"
+
+Total Elements: 7
+  Branding: 2 (will be preserved)
+  Content: 2 (available for use)
+  Placeholders: 2
+  Decoration: 1
+
+Branding Elements (automatically detected):
+  - image: CompanyLogo at (0.5", 0.3")
+  - text: Footer at (0.5", 7.0")
+    Text: "© 2024 ACME Corp - Confidential"
+
+Safe Content Area:
+  Position: (0.5", 1.8")
+  Size: 12.3" x 4.9"
+  [Content will be positioned here, avoiding branding]
+```
+
+#### Flexible Slide Building
+
+Create slides that preserve branding but allow custom layouts:
+
+```python
+# Initialize with template
+builder = FlexibleSlideBuilder(template_path=Path("corporate_template.pptx"))
+
+# Create slide from template (preserves branding)
+slide = builder.create_slide_from_template(layout_index=1)
+
+# Add content - automatically positioned in safe area
+builder.add_content_to_slide(slide, {
+    'title': 'Q4 Results Overview',
+    'content_type': 'bullets',
+    'content': [
+        'Revenue up 25% year-over-year',
+        'Expanded to 12 new markets',
+        'Customer satisfaction at 94%'
+    ]
+})
+```
+
+**Result:** Professional slide with:
+✓ Company logo preserved in top-left
+✓ Footer text preserved at bottom
+✓ Content positioned optimally without overlap
+✓ Brand consistency maintained
+
+#### AI Layout Decisions
+
+The LLM can now make intelligent layout choices based on content:
+
+**Two-Column Layouts with Custom Ratios:**
+```python
+# AI decides: Comparison needs 50/50 split
+builder.add_content_to_slide(slide, {
+    'title': 'Our Approach vs Traditional',
+    'content_type': 'two_column',
+    'content': {
+        'ratio': 0.5,  # Equal columns
+        'left': 'Traditional:\n• Locked layouts\n• Limited flexibility',
+        'right': 'PPTX Agent:\n• Preserved branding\n• Flexible positioning'
+    }
+})
+```
+
+**Grid Layouts for Multiple Items:**
+```python
+# AI decides: 6 images need 2x3 grid
+builder.add_content_to_slide(slide, {
+    'title': 'Product Gallery',
+    'content_type': 'grid',
+    'content': {
+        'rows': 2,
+        'cols': 3,
+        'items': [
+            {'image': 'product1.png'},
+            {'image': 'product2.png'},
+            # ... up to 6 items
+        ]
+    }
+})
+```
+
+**Custom Positioning:**
+```python
+# AI specifies exact layout (positions relative to safe area)
+builder.add_content_to_slide(slide, {
+    'title': 'Custom Layout',
+    'content_type': 'custom',
+    'content': [
+        {'type': 'text', 'left': 0, 'top': 0, 'width': 0.6, 'height': 0.8,
+         'content': 'Main content area...', 'font_size': 16},
+        {'type': 'text', 'left': 0.65, 'top': 0, 'width': 0.35, 'height': 0.4,
+         'content': 'Sidebar info...', 'font_size': 14}
+    ]
+})
+```
+
+#### Dynamic Layout Engine
+
+For presentations without templates, the Dynamic Layout Engine calculates positions programmatically:
+
+```python
+from pptx_agent.core.dynamic_layout_engine import DynamicLayoutEngine
+
+engine = DynamicLayoutEngine(slide_width=13.333, slide_height=7.5)
+
+# Create common layouts
+title_content = engine.create_title_content_layout()
+two_column = engine.create_two_column_layout(title=True, column_ratio=0.6)
+grid = engine.create_grid_layout(rows=2, cols=3, title=True)
+
+# AI suggests optimal layout based on content
+suggested = engine.suggest_layout({
+    'has_title': True,
+    'num_images': 4
+})
+# Returns: 2x2 grid layout
+```
+
+#### Benefits
+
+**For Users:**
+- ✅ Keep brand consistency (logos, colors, fonts)
+- ✅ Get layout flexibility (not locked to template structure)
+- ✅ No manual positioning needed
+- ✅ Professional results every time
+
+**For AI:**
+- ✅ Make intelligent layout decisions
+- ✅ Adapt to content requirements
+- ✅ Not constrained by templates
+- ✅ Full control when needed
+
+**For Quality:**
+- ✅ Branding never accidentally covered
+- ✅ Content always in safe areas
+- ✅ Optimal layouts for each content type
+- ✅ Consistent spacing and alignment
+
+#### Example Workflow
+
+```python
+from pptx_agent.core.flexible_slide_builder import FlexibleSlideBuilder
+from pathlib import Path
+
+# Initialize with corporate template
+builder = FlexibleSlideBuilder(template_path=Path("corporate_template.pptx"))
+
+# Slide 1: Title slide (uses template as-is)
+slide1 = builder.create_slide_from_template(layout_index=0)
+
+# Slide 2: Comparison with custom 60/40 split
+slide2 = builder.create_slide_from_template(layout_index=1)
+builder.add_content_to_slide(slide2, {
+    'title': 'Market Analysis',
+    'content_type': 'two_column',
+    'content': {
+        'ratio': 0.6,
+        'left': 'Opportunities:\n• Growing demand\n• New markets\n• Tech advances',
+        'right': 'Challenges:\n• Competition\n• Regulations'
+    }
+})
+
+# Slide 3: Image gallery with 2x3 grid
+slide3 = builder.create_slide_from_template(layout_index=1)
+builder.add_content_to_slide(slide3, {
+    'title': 'Our Products',
+    'content_type': 'grid',
+    'content': {
+        'rows': 2,
+        'cols': 3,
+        'items': [Path(f"product{i}.png") for i in range(1, 7)]
+    }
+})
+
+builder.save(Path("presentation.pptx"))
+```
+
+**Result:** Every slide has the company logo, colors, and footer (branding), but content is positioned optimally based on its type - not forced into rigid template layouts!
+
+#### See Examples
+
+- `examples/dynamic_layout_demo.py` - Dynamic layout engine demonstration
+- `examples/flexible_template_demo.py` - Flexible slide builder with branding preservation
+
+For complete documentation, see `CAPABILITIES.md` section on "Flexible Layout System".
+
 ## Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key (required)
@@ -672,7 +952,10 @@ options:
 
 See the `examples/` directory for:
 - `collaborative_workflow.py` - **Interactive collaborative mode** (RECOMMENDED)
-- `advanced_features_demo.py` - **NEW: Advanced features showcase** (notes, hyperlinks, rich text, advanced tables, etc.)
+- `flexible_template_demo.py` - **NEW: Flexible layout system** - Template intelligence and branding preservation
+- `dynamic_layout_demo.py` - **NEW: Dynamic layouts** - Programmatic positioning without templates
+- `advanced_features_demo.py` - **Advanced features showcase** (notes, hyperlinks, rich text, advanced tables)
+- `multi_format_references.py` - **Multi-format reference documents** (.docx, .pptx, .xlsx, .txt)
 - `full_features_showcase.py` - **Comprehensive content types** (SmartArt, shapes, charts, tables)
 - `autonomous_presentation.py` - Full autonomous mode example
 - `autonomous_with_validation.py` - Auto-optimization demo
@@ -693,6 +976,8 @@ See the `examples/` directory for:
 - colorama
 - python-dotenv
 - pydantic
+- python-docx (for Word document parsing)
+- openpyxl (for Excel parsing)
 
 ## Development
 
@@ -778,6 +1063,10 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 - [x] ✅ **Slide dimensions** - Widescreen, standard, custom sizes
 - [x] ✅ **Image enhancements** - Alt text for accessibility, transparency
 - [x] ✅ **Shape layering** - Control z-order (bring to front/send to back)
+- [x] ✅ **Multi-format reference documents** - Parse .docx, .pptx, .xlsx, .txt files
+- [x] ✅ **Flexible layout system** - Template intelligence, branding preservation, dynamic positioning
+- [x] ✅ **AI layout decisions** - LLM makes intelligent layout choices based on content
+- [x] ✅ **Template parsing** - Automatic classification of branding vs content elements
 
 ### 🚧 Planned Features
 

@@ -53,6 +53,22 @@ ADVANCED FEATURES:
 - Footer & Numbers: Show slide numbers and footer text
 - Shape Layering: Control visual stacking order
 
+LAYOUT FLEXIBILITY (IMPORTANT):
+Templates provide BRANDING (logos, colors, fonts), NOT layout constraints.
+You have full freedom to specify custom layouts:
+- Two-column layouts: Specify column ratios (e.g., 60/40, 70/30, 50/50)
+- Grid layouts: Specify rows and columns (e.g., 2x3 for image galleries)
+- Custom positioning: Specify exact element positions when needed
+- Content-aware layouts: Choose optimal layout based on content type
+- Safe area positioning: Content automatically avoids template branding
+
+LAYOUT DECISION MAKING:
+- Comparison slides → use two-column with appropriate ratio
+- Multiple images → use grid layout (2x2, 2x3, 3x2)
+- Image with text → specify image position (left/right/center) and size
+- Complex data → consider custom positioning for optimal readability
+- Default → standard title + content layout
+
 BEST PRACTICES:
 - Mix content types for variety
 - Use bullets for key points (3-7 per slide)
@@ -64,6 +80,7 @@ BEST PRACTICES:
 - Use hyperlinks for navigation and resources
 - Use rich formatting to emphasize important points
 - Keep slides focused (one main idea per slide)
+- MAKE LAYOUT DECISIONS based on content requirements
 
 Create a detailed outline for a PowerPoint presentation. Return JSON with this structure:
 
@@ -75,6 +92,14 @@ Create a detailed outline for a PowerPoint presentation. Return JSON with this s
       "slide_type": "title|content|section|table|chart|image|smartart|shapes|blank",
       "title": "Slide Title",
       "content": "Main content description",
+      "layout_config": {
+        "type": "standard|two_column|grid|image_text|custom",
+        "column_ratio": 0.5,
+        "grid_rows": 2,
+        "grid_cols": 3,
+        "image_position": "left|right|center",
+        "image_size": "small|medium|large"
+      },
       "elements": [
         {
           "type": "text|bullet_points|table|chart|image|process_flow|cycle|hierarchy|comparison|venn|timeline|flowchart|shapes",
@@ -111,6 +136,13 @@ SLIDE TYPES & WHEN TO USE:
 - image: Visual content
 - blank: Custom layouts
 
+LAYOUT TYPES & WHEN TO USE:
+- standard: Default title + content (most common)
+- two_column: Comparisons, before/after, pros/cons (specify column_ratio: 0.6 for 60/40 split)
+- grid: Multiple images, product showcases, team photos (specify grid_rows and grid_cols)
+- image_text: Hero images with text overlay (specify image_position and image_size)
+- custom: Complex layouts requiring exact positioning
+
 ELEMENT TYPES:
 - bullet_points: Key points (provide list)
 - table: Data (provide headers and rows)
@@ -122,6 +154,12 @@ ELEMENT TYPES:
 - venn: Overlapping concepts (provide left/right/overlap items)
 - timeline: Chronological events (provide events with dates)
 - flowchart: Decision trees (provide steps with 'decision' flag)
+
+EXAMPLES OF LAYOUT DECISIONS:
+- Comparison slide → layout_config: {"type": "two_column", "column_ratio": 0.5}
+- Image gallery (6 images) → layout_config: {"type": "grid", "grid_rows": 2, "grid_cols": 3}
+- Image with description → layout_config: {"type": "image_text", "image_position": "left", "image_size": "medium"}
+- Standard content → layout_config: {"type": "standard"}
 """
 
         user_prompt = f"""Create a presentation outline for:

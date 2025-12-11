@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 from .core.presentation_builder import PresentationBuilder
 from .core.autonomous_builder import AutonomousPresentationBuilder
+from .core.document_parser import DocumentParser
 from .cli.interactive import InteractiveCLI
 from .cli.collaborative import run_collaborative_mode
 
@@ -178,9 +179,20 @@ Examples:
             ref_path = Path(args.reference)
             if ref_path.exists():
                 try:
-                    ref_docs = ref_path.read_text()
+                    print(f"Parsing reference document: {ref_path.name}")
+                    ref_docs = DocumentParser.parse_file(ref_path)
+                    summary = DocumentParser.get_document_summary(ref_path)
+                    print(f"  Format: {summary['extension']}")
+                    if 'paragraphs' in summary:
+                        print(f"  Paragraphs: {summary['paragraphs']}")
+                    if 'slides' in summary:
+                        print(f"  Slides: {summary['slides']}")
+                    if 'sheets' in summary:
+                        print(f"  Sheets: {summary['sheets']}")
+                except ValueError as e:
+                    print(f"Warning: {e}")
                 except Exception as e:
-                    print(f"Warning: Could not read reference file: {e}")
+                    print(f"Warning: Could not parse reference file: {e}")
 
         # Create presentation autonomously
         try:
@@ -234,9 +246,20 @@ Examples:
             ref_path = Path(args.reference)
             if ref_path.exists():
                 try:
-                    ref_docs = ref_path.read_text()
+                    print(f"Parsing reference document: {ref_path.name}")
+                    ref_docs = DocumentParser.parse_file(ref_path)
+                    summary = DocumentParser.get_document_summary(ref_path)
+                    print(f"  Format: {summary['extension']}")
+                    if 'paragraphs' in summary:
+                        print(f"  Paragraphs: {summary['paragraphs']}")
+                    if 'slides' in summary:
+                        print(f"  Slides: {summary['slides']}")
+                    if 'sheets' in summary:
+                        print(f"  Sheets: {summary['sheets']}")
+                except ValueError as e:
+                    print(f"Warning: {e}")
                 except Exception as e:
-                    print(f"Warning: Could not read reference file: {e}")
+                    print(f"Warning: Could not parse reference file: {e}")
 
         # Create outline
         print("Generating outline...")
